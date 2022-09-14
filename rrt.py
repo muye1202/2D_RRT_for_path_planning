@@ -38,9 +38,7 @@ class RRT:
         root = Node(q_init)
         self.node_list = [root]
 
-
-    # add random num of random nodes to current node
-    def expand(self):
+    def get_new_pos(self):
         # random reference pos
         x_pos = random.uniform(0, 100)
         y_pos = random.uniform(0, 100)
@@ -54,13 +52,17 @@ class RRT:
 
         # pos of new node:
         new_pos = nearest_node.get_pos() + np.array([ref_curr_vec[0]/ref_curr_dist, ref_curr_vec[1]/ref_curr_dist])
+        return nearest_node, new_pos
 
+    # add random num of random nodes to current node
+    def expand(self, nearest_node, new_pos):
         # new node:
         new_node = Node(new_pos)
         nearest_node.set_child(new_node)
         new_node.set_parent(nearest_node)
-
         self.node_list.append(new_node)
+
+        return new_node
         
     def find_nearest_node(self, ref_pt):
         dist_dict = {}
@@ -104,7 +106,7 @@ def expand_test():
     node_num = simple_rrt.get_node_num()
     curr_pos = q_init
     curr_node = Node(curr_pos)
-    new_nodes_list = [curr_node]
+    # new_nodes_list = [curr_node]
     while node_num < K:
         simple_rrt.expand()
         node_num = simple_rrt.get_node_num()
@@ -120,6 +122,7 @@ def draw_lines(line_seg):
     ax.set_xlim(0, 100)
     ax.set_ylim(0, 100)
     ax.add_collection(l_c, '-o')
+    
     plt.show()
 
 if __name__ == "__main__":
@@ -149,14 +152,3 @@ if __name__ == "__main__":
     #plt.show()
 
     draw_lines(line_seg)
-    
-
-
-    
-
-    
-    
-
-
-
-        
