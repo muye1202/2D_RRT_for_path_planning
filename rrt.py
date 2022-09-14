@@ -16,6 +16,9 @@ class Node:
     def get_child(self):
         return self.child
 
+    def get_parent(self):
+        return self.parent
+
     def set_child(self, child):
         self.child.append(child)
 
