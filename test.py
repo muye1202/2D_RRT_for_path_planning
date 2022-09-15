@@ -80,6 +80,7 @@ def check_intersection(line_start, line_end, circle_pos, r):
 
 
 if __name__ == "__main__":
+    """
     f, ax = plt.subplots()
     circle = plt.Circle([2, 2], 1, fill = False)
 
@@ -112,6 +113,18 @@ if __name__ == "__main__":
     
 
     #print(r)
+    """
+
+    x = np.ones((2, 2))
+    y = 2 * np.ones((2, 2))
+    mat = np.stack((x, y), axis=2)
+    x = y - x
+    z = x[np.where(x == 0)]
+    check = z.size == 0
+    print(check)
+    #print(mat)
+    #print("mat shape")
+    #print(mat.shape)
 
 
 
