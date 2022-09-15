@@ -6,7 +6,6 @@ from matplotlib.collections import LineCollection as lc
 from scipy.optimize import fsolve
 
 def detect_collision(pt_pos, circle_pos, r):
-    # generate points on the circle
     # eqn for circle: (x + cx)^2 + (y + cy)^2 = r^2
     # solve for intersection
     # first get the line connecting center of circle to vertex
@@ -56,6 +55,20 @@ def obstacle_avoidance(obstacle_pos: list, obstacle_r: list, q_init, k, delt, do
     #exist = False
     while node_num < k:
         
+        # return if no obstacle between this node and goal
+        collision = 0
+        # get pos of latest node:
+        latest_node = rrt.get_latest_node()
+        latest_pos = latest_node.get_pos()
+        for i in range(len(obstacle_pos)):
+            inter = check_intersection(latest_pos, goal, obstacle_pos[i], obstacle_r[i])
+            if inter:
+                collision += 1
+
+        if collision == 0:
+            rrt.expand(latest_node, goal)
+            break
+
         flag = False
         # if collision happens, expand to other vertices
         while flag == False:
@@ -63,8 +76,9 @@ def obstacle_avoidance(obstacle_pos: list, obstacle_r: list, q_init, k, delt, do
             collision = 0
             # new vertex:
             nearest_node, new_pos = rrt.get_new_pos()
+            curr_pos = nearest_node.get_pos()
             for i in range(len(obstacle_pos)):
-                check = detect_collision(new_pos, obstacle_pos[i], obstacle_r[i])
+                check = check_intersection(new_pos, curr_pos, obstacle_pos[i], obstacle_r[i])
                 if check == True:
                     collision += 1
 
@@ -72,36 +86,37 @@ def obstacle_avoidance(obstacle_pos: list, obstacle_r: list, q_init, k, delt, do
                 flag = True
 
         # if passed the above while loop
-        new_node = rrt.expand(nearest_node, new_pos)
-        new_pos = new_node.get_pos()
-        # return if no obstacle between this node and goal
-        collision = 0
-        for i in range(len(obstacle_pos)):
-            root = check_intersection(new_pos, goal, obstacle_pos[i], obstacle_r[i])
-            if root[0] >= obstacle_pos[i][0] - obstacle_r[i] and root[0] <= obstacle_pos[i][0] + obstacle_r[i]:
-                collision += 1
-
-        if collision == 0:
-            rrt.expand(new_node, goal)
-            break
-        
+        rrt.expand(nearest_node, new_pos)
         node_num = rrt.get_node_num()
 
     return rrt.get_node_list()
 
 def check_intersection(line_start, line_end, circle_pos, r):
+    """
     def line(sol):
-        return [sol[0] * line_start[0] + sol[1] - line_end[1], sol[0] * circle_pos[0] + sol[1] - circle_pos[1]]
+        return [sol[0] * line_start[0] + sol[1] - line_start[1], sol[0] * line_end[0] + sol[1] - line_end[1]]
     sol = fsolve(line, [circle_pos[0]-r, circle_pos[1]-r])
     k = sol[0]
     b = sol[1]
+    """
 
-    # solve for intersection between the line and the circle
-    # x[0] = x, x[1] = y
-    def circle_eqn(s):
-        return [ np.power((s[0] - circle_pos[0]), 2) + np.power((s[1] - circle_pos[1]), 2) - np.power(r, 2), k*s[0] + b - s[1]]
+    def center_line(sol):
+        return [sol[0] * line_start[0] + sol[1] - line_start[1], sol[0] * circle_pos[0] + sol[1] - circle_pos[1]]
+    result = fsolve(center_line, [circle_pos[0] - r, circle_pos[1] - r])
 
-    result = fsolve(circle_eqn, [circle_pos[0] - r, circle_pos[1] - r])
+    # cos(beta)
+    OA = circle_pos - line_start
+    BA = line_end - line_start
+    l_oa = np.linalg.norm(OA)
+    l_ba = np.linalg.norm(BA)
+    cos_beta = np.dot(OA, BA) / (l_oa * l_ba)
+    AD = l_oa * cos_beta
+    OD = np.sqrt(np.power(l_oa, 2) - np.power(AD, 2))
+
+    if OD <= r:
+        result = True
+    else:
+        result = False
 
     return result
 
@@ -122,17 +137,17 @@ def draw_lines(line_seg, obstacle_pos, obstacle_r, start, goal, path):
     ax.add_collection(l_c, '-o')
     ax.add_collection(l_c_path, '-o')
     
-    plt.plot(30, 30, 'ro')
-    plt.plot(40, 90, 'go')
+    plt.plot(start[0], start[1], 'ro')
+    plt.plot(goal[0], goal[1], 'go')
     plt.show()
 
 def random_circle(num_of_circles):
     position = []
     r = []
     for _ in range(num_of_circles):
-        pos = np.random.randint(40, 80, (2,))
+        pos = np.random.randint(10, 90, (2,))
         position.append(pos)
-        radi = np.random.randint(10, 21)
+        radi = np.random.randint(5, 16)
         r.append(radi)
 
     return position, r
@@ -151,14 +166,29 @@ def path_finder(start: Node, end: Node):
 
 def test():
     
-    q_init = np.array([30, 30])
+    circle_pos, circle_r = random_circle(12)
+    """
+    
+    in_obs = 5
+    while in_obs > 0:
+        in_obs = 0
+        q_init = np.random.randint(0, 100, size=(2,))
+        goal = np.random.randint(0, 100, size=(2,))
+
+        for i in range(len(circle_r)):
+            init_to_c = np.linalg.norm(circle_pos[i] - q_init)
+            goal_to_c = np.linalg.norm(circle_pos[i] - goal)
+
+            if init_to_c < circle_r[i] or goal_to_c < circle_r[i]:
+                in_obs += 1
+    """
+
     delt = 1
     D = 100
-    K = 600
-    goal = np.array([40, 90])
+    K = 800
 
-    circle_pos, circle_r = random_circle(5)
-
+    q_init = np.array([10, 10])
+    goal = np.array([70, 70])
     node_list = obstacle_avoidance(circle_pos, circle_r, q_init, K, delt, D, goal)
     nodes_pos_x = []
     nodes_pos_y = []

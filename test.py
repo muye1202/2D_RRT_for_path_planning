@@ -48,7 +48,34 @@ def detect_collision(pt_pos, circle_pos, r):
     else:
         return False
 
-    
+def check_intersection(line_start, line_end, circle_pos, r):
+    """
+    def line(sol):
+        return [sol[0] * line_start[0] + sol[1] - line_start[1], sol[0] * line_end[0] + sol[1] - line_end[1]]
+    sol = fsolve(line, [circle_pos[0]-r, circle_pos[1]-r])
+    k = sol[0]
+    b = sol[1]
+    """
+
+    def center_line(sol):
+        return [sol[0] * line_start[0] + sol[1] - line_start[1], sol[0] * circle_pos[0] + sol[1] - circle_pos[1]]
+    result = fsolve(center_line, [circle_pos[0] - r, circle_pos[1] - r])
+
+    # cos(beta)
+    OA = circle_pos - line_start
+    BA = line_end - line_start
+    l_oa = np.linalg.norm(OA)
+    l_ba = np.linalg.norm(BA)
+    cos_beta = np.dot(OA, BA) / (l_oa * l_ba)
+    AD = l_oa * cos_beta
+    OD = np.sqrt(np.power(l_oa, 2) - np.power(AD, 2))
+
+    if OD <= r:
+        result = True
+    else:
+        result = False
+
+    return result
 
 
 
@@ -61,12 +88,26 @@ if __name__ == "__main__":
     ax.set_aspect(1)
     # plt.show()
 
-    p, k, b = detect_collision(np.array([1.5,2.5]), np.array([2,2]), 1)
+    # p, k, b = detect_collision(np.array([1.5,2.5]), np.array([2,2]), 1)
     
-    x = np.arange(0, 4, 0.05)
-    plt.plot(x, k*x+b, 'o')
-    plt.plot(p[0], p[1], 'or')
+    # x = np.arange(0, 4, 0.05)
+    # plt.plot(x, k*x+b, 'o')
+    # plt.plot(p[0], p[1], 'or')
     ax.add_artist(circle)
+
+    a = np.array([1, 1])
+    b = np.array([4, 4])
+    check = check_intersection(a, b, np.array([2, 2]), 1)
+    if check:
+        print("intersected")
+    else:
+        print("not intersected")
+
+    #x = np.arange(0, 4, 0.05)
+    #plt.plot(x, k*x+c, 'o')
+    # plt.plot(p[0], p[1], 'or')
+    plt.plot([a[0], b[0]], [a[1], b[1]], 'go-')
+    #plt.plot(root, 'o')
     plt.show()
     
 

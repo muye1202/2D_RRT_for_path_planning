@@ -41,6 +41,10 @@ class RRT:
         root = Node(q_init)
         self.node_list = [root]
 
+    # return the latest node in the tree
+    def get_latest_node(self):
+        return self.node_list[len(self.node_list) - 1]
+
     def get_new_pos(self):
         # random reference pos
         x_pos = random.uniform(0, 100)
