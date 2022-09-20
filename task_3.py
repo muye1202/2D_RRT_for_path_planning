@@ -19,7 +19,7 @@ from scipy.optimize import fsolve
 
 def check_collision(start, end, obs_loc):
     # when the line is vertical
-    if abs(start[0] - end[0]) <= 0.8:
+    if abs(start[0] - end[0]) <= 1:
         y0 = int(start[1])
         y1 = int(end[1])
         x0 = int(start[0])
@@ -78,7 +78,7 @@ def obstacle_avoidance(obstacle_pos: list, q_init, k, delt, domain, goal):
         collision = check_collision(latest_pos, goal, obstacle_pos)
 
         if collision == False:
-            print('it will stop here')
+            # print('it will stop here')
             rrt.expand(latest_node, goal)
             break
 
