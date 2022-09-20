@@ -80,10 +80,9 @@ def draw_lines(line_seg, obstacle_pos, obstacle_r, start, goal, path):
     l_c = lc(line_seg)
     l_c_path = lc(path, color = 'r')
     f, ax = plt.subplots()
-
-    # draw a list of circles
+# draw a list of circles
     for i in range(len(obstacle_pos)):
-        circle = plt.Circle(obstacle_pos[i], obstacle_r[i], fill=False)
+        circle = plt.Circle(obstacle_pos[i], obstacle_r[i], fill=True)
         ax.add_artist(circle)
 
     ax.set_aspect(1)
@@ -101,9 +100,9 @@ def random_circle(num_of_circles):
     position = []
     r = []
     for _ in range(num_of_circles):
-        pos = np.random.randint(10, 90, (2,))
+        pos = np.random.randint(0, 100, (2,))
         position.append(pos)
-        radi = np.random.randint(5, 16)
+        radi = np.random.randint(5, 10)
         r.append(radi)
 
     return position, r

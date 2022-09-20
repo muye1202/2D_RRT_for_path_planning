@@ -1,8 +1,11 @@
+from tabnanny import check
 from rrt import RRT
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.collections import LineCollection as lc
 from scipy.optimize import fsolve
+import imageio.v3 as iio
+from task_3 import check_collision
 
 def detect_collision(pt_pos, circle_pos, r):
     # generate points on the circle
@@ -78,9 +81,63 @@ def check_intersection(line_start, line_end, circle_pos, r):
     return result
 
 
-
 if __name__ == "__main__":
+    map = iio.imread('N_map.png')
+    map = np.flipud(map)
+    
+    # find indices for obs:
+    map = map[1:98, :]
+    map = map[:, 1:98]
+    obs = np.where(map == 1)
+    obs = np.vstack((obs[0], obs[1])).T
+    obs_loc = np.zeros(obs.shape)
+    obs_loc[:, 0] = obs[:, 1]
+    obs_loc[:, 1] = obs[:, 0]
+
+    start = np.array([14.8, 10.3])
+    end = np.array([80, 37])
+    start = np.asarray(start, dtype=int)
+    c = check_collision(start, end, obs_loc)
+    print(c)
+
+    # a = np.array([2, 3])
+    # b = np.array([[2, 3], [2,2], [1,2]])
+    # c = np.linalg.norm(b - a, axis=1)
+    # print(c)
+
     """
+    a = np.zeros((10,10))
+    a[2:8, 2:8] = 1
+    print(a)
+
+    obs = np.where(a == 1)
+    obs = np.vstack((obs[0], obs[1])).T
+    obs_loc = np.zeros(obs.shape)
+    obs_loc[:, 0] = obs[:, 1]
+    obs_loc[:, 1] = obs[:, 0]
+
+    pt_start = np.array([8, 4])
+    pt_end = np.array([1, 6])
+    check = check_collision(pt_start, pt_end, obs_loc)
+    a[2, 1] = 8
+    a[2, 9] = 8
+
+    print(check)
+    print(a)
+
+    a = np.array([
+        [1,1],
+        [2,2],
+        [5,5]
+    ])
+
+    #plt.plot(a, 'o')
+    img = iio.imread('N_map.png')
+    plt.imshow(img)
+    plt.show()
+
+
+    
     f, ax = plt.subplots()
     circle = plt.Circle([2, 2], 1, fill = False)
 
@@ -115,6 +172,7 @@ if __name__ == "__main__":
     #print(r)
     """
 
+    """
     x = np.ones((2, 2))
     y = 2 * np.ones((2, 2))
     mat = np.stack((x, y), axis=2)
@@ -125,6 +183,7 @@ if __name__ == "__main__":
     #print(mat)
     #print("mat shape")
     #print(mat.shape)
+    """
 
 
 
