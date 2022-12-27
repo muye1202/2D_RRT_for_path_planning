@@ -2,7 +2,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.collections import LineCollection as lc
 import random 
-from collections import OrderedDict
 
 class Node:
     def __init__(self, pos):
