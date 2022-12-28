@@ -1,3 +1,10 @@
+"""
+Contains customized Node and RRT class for tree generation.
+
+Classes:
+    Node: For the nodes in a RRT.
+    RRT: Functions needed to expand the RRT.
+"""
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.collections import LineCollection as lc
@@ -42,15 +49,24 @@ class RRT:
 
     # return the latest node in the tree
     def get_latest_node(self):
-        return self.node_list[len(self.node_list) - 1]
+        return self.node_list[-1]
 
-    def get_new_pos(self):
+    def get_ref_pos(self):
         # random reference pos
         x_pos = random.uniform(0, 100)
         y_pos = random.uniform(0, 100)
-
         ref_pos = np.array([x_pos, y_pos])
+
+        return ref_pos
+
+    def get_new_pos(self, tag_node=None):
+        # avoid selecting the tagged node
+        ref_pos = self.get_ref_pos()
         nearest_node = self.find_nearest_node(ref_pos)
+        while nearest_node == tag_node and tag_node != None:
+            # print("select a new ref node")
+            ref_pos = self.get_ref_pos()
+            nearest_node = self.find_nearest_node(ref_pos)
 
         # angle between ref and horizontal:
         ref_curr_vec = ref_pos - nearest_node.get_pos()
@@ -61,7 +77,7 @@ class RRT:
         return nearest_node, new_pos
 
     # add random num of random nodes to current node
-    def expand(self, nearest_node, new_pos):
+    def expand(self, nearest_node:Node, new_pos):
         # new node:
         new_node = Node(new_pos)
         nearest_node.set_child(new_node)
@@ -83,8 +99,6 @@ class RRT:
         nearest_node = dist_dict[dist_list[0]]
 
         return nearest_node
-        
-
 
     def get_node_num(self):
         return len(self.node_list)
@@ -100,7 +114,12 @@ class RRT:
 
 
 def expand_test():
+    """
+    Test the RRT expansion.
 
+    Output:
+        A list of all nodes on the RRT.
+    """
     q_init = np.array([50, 50])
     delt = 1
     D = 100
@@ -110,8 +129,6 @@ def expand_test():
 
     # expand the tree:
     node_num = simple_rrt.get_node_num()
-    curr_pos = q_init
-    curr_node = Node(curr_pos)
     # new_nodes_list = [curr_node]
     while node_num < K:
         simple_rrt.expand()
@@ -119,11 +136,20 @@ def expand_test():
 
     print("finish tree expansion")
 
-    return simple_rrt.get_node_dict(), simple_rrt.get_node_list()
+    return simple_rrt.get_node_list()
     
 def draw_lines(line_seg):
+    """
+    Plot the RRT.
+
+    Input:
+        line_seg: List of all the nodes on RRT.
+
+    Output:
+        NONE
+    """
     l_c = lc(line_seg)
-    f, ax = plt.subplots()
+    _, ax = plt.subplots()
 
     ax.set_xlim(0, 100)
     ax.set_ylim(0, 100)
@@ -132,13 +158,10 @@ def draw_lines(line_seg):
     plt.show()
 
 if __name__ == "__main__":
-    
-    nodes_pos_dict, nodes_list = expand_test()
+    nodes_list = expand_test()
     nodes_pos_x = []
     nodes_pos_y = []
     line_seg = []
-
-
 
     for node in nodes_list:
         pos = node.get_pos()
@@ -153,8 +176,5 @@ if __name__ == "__main__":
             child_pos = (c_pos[0], c_pos[1])
             seg = [parent_node_pos, child_pos]
             line_seg.append(seg)
-
-    #plt.plot(nodes_pos_x, nodes_pos_y, 'o')
-    #plt.show()
 
     draw_lines(line_seg)
