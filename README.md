@@ -8,7 +8,7 @@ with any shapes and sizes, and the path along with the Tree generated is visuali
 The algorithm is going to plan a path around the Northwestern-N-shaped obstacle. Starting at (40, 40), ending at (60, 60).
 
 The resulted path (plot in red):
-![image](https://user-images.githubusercontent.com/112987403/209891360-877f7e05-a808-4663-921a-24c18cf6dac5.png)
+![image](https://user-images.githubusercontent.com/112987403/209891484-771e161f-f692-4da8-b355-623d5ccb1f65.png)
 
 The RRT expansion animation:
 
