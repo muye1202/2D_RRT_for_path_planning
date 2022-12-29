@@ -230,8 +230,8 @@ def draw_lines(line_seg, start, goal, path, obs):
 
     # save the plot as animation
     ani = animation.ArtistAnimation(fig, ims, interval=3, blit=True)
-    writergif = animation.FFMpegWriter(fps=30)
-    ani.save('n_map.mp4', writer=writergif)
+    writermp4 = animation.FFMpegWriter(fps=30)
+    ani.save('ani.mp4', writer=writermp4)
     plt.show()
 
 def graphing(map, obs_loc, delt, D, K, q_init, goal):
@@ -268,10 +268,12 @@ def graphing(map, obs_loc, delt, D, K, q_init, goal):
     # get path collection:
     path = path_finder(node_list[0], node_list[len(node_list)-1])
     path_seg = []
+    solved_path = []
     for i in range(len(path)-1):
         curr_node = path[i]
         cpos = curr_node.get_pos()
         curr_pos = (cpos[0], cpos[1])
+        solved_path.append(cpos)
 
         next_node = path[i+1]
         npos = next_node.get_pos()
@@ -279,9 +281,12 @@ def graphing(map, obs_loc, delt, D, K, q_init, goal):
         seg_path = [curr_pos, next_pos]
         path_seg.append(seg_path)
 
+    last_node = path[-1]
+    last_pos = last_node.get_pos()
+    solved_path.append(last_pos)
     draw_lines(line_seg, start=q_init, goal=goal, path=path_seg, obs=map)
 
-    return path_seg
+    return path_seg, solved_path
 
 def test(obs_loc, path=None):
     """
@@ -347,7 +352,8 @@ def run_rrt():
     obs = np.where(map == 1)
     obs = np.vstack((obs[1], obs[0])).T
 
-    _ = graphing(map, obs, delt, D, k, q_init, goal)
+    _, solved_path = graphing(map, obs, delt, D, k, q_init, goal)
+    np.savetxt('path.txt', solved_path, delimiter=',')
 
 if __name__ == "__main__":
     run_rrt()
