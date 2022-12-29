@@ -6,8 +6,9 @@ with any shapes and sizes, and the path along with the Tree generated is visuali
 
 ## Example
 The algorithm is going to plan a path around the Northwestern-N-shaped obstacle. Starting at (40, 40), ending at (60, 60).
-
 The resulted path (plot in red):
+
+
 ![image](https://user-images.githubusercontent.com/112987403/209891484-771e161f-f692-4da8-b355-623d5ccb1f65.png)
 
 The RRT expansion animation:
