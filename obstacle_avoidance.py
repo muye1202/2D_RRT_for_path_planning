@@ -12,6 +12,7 @@ import imageio.v3 as iio
 from rrt import RRT
 import matplotlib.pyplot as plt
 from matplotlib.collections import LineCollection as lc
+import matplotlib.animation as animation
 from rrt import Node
 
 
@@ -105,7 +106,6 @@ def check_in_obs(pt, obs_loc):
 
     return True if zero_elem.size > 0 else False
 
-
 def obstacle_avoidance(obstacle_pos, q_init, k, delt, domain, goal):
     """
     Generate a random tree that avoids the obstacles.
@@ -196,21 +196,33 @@ def draw_lines(line_seg, start, goal, path, obs):
     Output:
         None.
     """
+    fig, ax = plt.subplots()
+    ax.set_xlim(0., 100.)
+    ax.set_ylim(0., 100.)
+    ims = []
+    curr_seg = []
+    for line in line_seg:
+        curr_seg.append(line)
+        im = ax.add_collection(lc(curr_seg))
+        ims.append([im])
 
-    l_c = lc(line_seg)
-    l_c_path = lc(path, color = 'r')
-    _, ax = plt.subplots()
-
-    ax.set_xlim(0, 100)
-    ax.set_ylim(0, 100)
-    ax.add_collection(l_c, '-o')
-    ax.add_collection(l_c_path, '-o')
+    map = ax.add_collection(lc(line_seg))
+    curr_seg = []
+    for path_seg in path:
+        curr_seg.append(path_seg)
+        im = ax.add_collection(lc(curr_seg, color='r'))
+        ims.append([map, im])
     
     plt.plot(start[0], start[1], 'ro')
     plt.plot(goal[0], goal[1], 'go')
     
     # plot the map
     plt.imshow(obs, origin='lower', cmap='gray')
+
+    # save the plot as animation
+    ani = animation.ArtistAnimation(fig, ims, interval=3, blit=True)
+    writergif = animation.FFMpegWriter(fps=30)
+    ani.save('n_map.mp4', writer=writergif)
     plt.show()
 
 def graphing(map, obs_loc):
@@ -227,7 +239,7 @@ def graphing(map, obs_loc):
 
     delt = 1
     D = 100
-    K = 2000
+    K = 2100
 
     # Determine the start and goal positions
     q_init = np.array([40, 40])
