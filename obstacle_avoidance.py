@@ -1,6 +1,14 @@
 """
 Returns a collision free path in 2D planning domain.
 
+Example parameters:
+    filename: N_map.png
+    delt = 1
+    D = 100
+    K = 2100
+    q_init = np.array([40, 40])
+    goal = np.array([60, 60])
+
 1. The RRT generation algorithm can generate tree spanning 
    the free space in the planning domain, and return a path
    in the tree that can avoid obstacles of any shape and sizes.
@@ -8,6 +16,7 @@ Returns a collision free path in 2D planning domain.
 2. The input map needs to be an image convertable to NumPy array.
 """
 import numpy as np
+import sys
 import imageio.v3 as iio
 from rrt import RRT
 import matplotlib.pyplot as plt
@@ -225,7 +234,7 @@ def draw_lines(line_seg, start, goal, path, obs):
     ani.save('n_map.mp4', writer=writergif)
     plt.show()
 
-def graphing(map, obs_loc):
+def graphing(map, obs_loc, delt, D, K, q_init, goal):
     """
     Specify start and goal location here and plot the path.
 
@@ -236,14 +245,7 @@ def graphing(map, obs_loc):
     Output:
         path (NumPy array): Numpy array with solved path.
     """
-
-    delt = 1
-    D = 100
-    K = 2100
-
     # Determine the start and goal positions
-    q_init = np.array([40, 40])
-    goal = np.array([60, 60])
     node_list = obstacle_avoidance(obs_loc, q_init, K, delt, D, goal)
     nodes_pos_x = []
     nodes_pos_y = []
@@ -318,15 +320,34 @@ def test(obs_loc, path=None):
             flag = check_in_obs(end, obs_loc)
             print(flag)
 
-if __name__ == "__main__":
-    map = iio.imread('N_map.png')
+def run_rrt():
+    """
+    Receive user input for RRT algorithm.
+    """
+    cmd = sys.argv
+    filename = cmd[1]
+    map = iio.imread(str(filename))
+    delt = float(cmd[2])
+    D = float(cmd[3])
+    k = float(cmd[4])
+    startx = float(cmd[5])
+    starty = float(cmd[6])
+    endx = float(cmd[7])
+    endy = float(cmd[8])
+    q_init = np.array([startx, starty])
+    goal = np.array([endx, endy])
+
     map = np.flipud(map)
-    
+    width = map.shape[1]
+    height = map.shape[0]
+    map = map[1:height-1, :]
+    map = map[:, 1:width-1]
+
     # find indices for obs:
-    map = map[1:98, :]
-    map = map[:, 1:98]
     obs = np.where(map == 1)
     obs = np.vstack((obs[1], obs[0])).T
 
-    path = graphing(map, obs)
-    test(obs, path)
+    _ = graphing(map, obs, delt, D, k, q_init, goal)
+
+if __name__ == "__main__":
+    run_rrt()
